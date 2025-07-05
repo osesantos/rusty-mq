@@ -3,7 +3,14 @@ mod config;
 mod error;
 mod metrics;
 
+use std::time::Duration;
+
+use broker::engine::BrokerEngine;
+use broker::message::Message;
+
 use clap::Parser;
+use serde_json::json;
+use tokio::time::sleep;
 use tracing::info;
 use tracing_subscriber;
 
@@ -40,8 +47,26 @@ async fn main() -> anyhow::Result<()> {
 
     info!("Starting RustyMQ on port {}", port);
 
-    // TODO - Initialize the broker with the specified port
+    let broker = BrokerEngine::new(config.buffer_size);
+    let mut subscriber = broker.subscribe("test.*");
 
+    tokio::spawn(async move {
+        while let Ok(msg) = subscriber.recv().await {
+            info!("Received message: {:?}", msg);
+        }
+    });
+
+    // Testing the publish method
+    sleep(Duration::from_secs(1)).await; // Wait a bit before publishing
+
+    broker.publish(Message {
+        topic: "test.topic".to_string(),
+        payload: json!({"response": "Hello, World!"}),
+    });
+
+    sleep(Duration::from_secs(1)).await; // Wait a bit before publishing
+
+    // Wait for a shutdown signal
     tokio::signal::ctrl_c().await?;
     info!("Received shutdown signal, shutting down gracefully...");
     Ok(())

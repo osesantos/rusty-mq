@@ -1,7 +1,8 @@
 use serde::{Deserialize, Serialize};
+use serde_json::Value;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub  struct Message {
+pub struct Message {
     pub topic: String,
-    pub payload: Vec<u8>,
+    pub payload: Value,
 }

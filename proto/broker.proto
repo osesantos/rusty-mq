@@ -1,0 +1,33 @@
+syntax = "proto3";
+
+package rustymq;
+
+service BrokerService {
+  // Publish a message to a topic
+  rpc Publish(PublishRequest) returns (PublishResponse);
+  // Subscribe to a topic and receive messages
+  rpc Subscribe(SubscribeRequest) returns (stream Message);
+}
+
+// Request to publish a message to a topic
+message PublishRequest {
+  string topic = 1;
+  string json_payload = 2; // raw JSON payload as a string
+}
+
+// Response after publishing a message
+message PublishResponse {
+  bool success = 1;
+}
+
+// Request to subscribe to a topic
+message SubscribeRequest {
+  string topic = 1; // support for wildcard topics (* and >)
+}
+
+// Message sent to subscribers
+message Message {
+  string topic = 1;
+  string json_payload = 2;
+}
+
