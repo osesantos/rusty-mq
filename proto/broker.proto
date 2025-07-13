@@ -12,7 +12,7 @@ service BrokerService {
 // Request to publish a message to a topic
 message PublishRequest {
   string topic = 1;
-  string json_payload = 2; // raw JSON payload as a string
+  string message = 2; // raw JSON payload as a string
 }
 
 // Response after publishing a message
@@ -28,6 +28,6 @@ message SubscribeRequest {
 // Message sent to subscribers
 message Message {
   string topic = 1;
-  string json_payload = 2;
+  string message = 2;
 }
 

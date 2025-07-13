@@ -2,17 +2,20 @@ mod broker;
 mod config;
 mod error;
 mod metrics;
+mod service;
+mod startup;
+mod client;
 
 use std::time::Duration;
 
 use broker::engine::BrokerEngine;
-use broker::message::Message;
 
 use clap::Parser;
 use serde_json::json;
 use tokio::time::sleep;
 use tracing::info;
 use tracing_subscriber;
+use crate::startup::run;
 
 #[derive(Parser, Debug)]
 #[command(
@@ -23,15 +26,23 @@ use tracing_subscriber;
     long_about = None,
 )]
 struct Cli {
-    // Port to bind the server to
-    #[arg(short, long, default_value = "8080")]
+    #[arg(short, long, default_value = "50053")]
     port: u16,
+    #[arg(short, long, default_value = "false")]
+    client: bool,
 }
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
     // Setup logging
     tracing_subscriber::fmt::init();
+
+    // Check if the client flag is set
+    if Cli::parse().client {
+        info!("Running in client mode");
+        client::run().await.unwrap();
+        return Ok(());
+    }
 
     let cli = Cli::parse();
     let config = config::Config::from_env();
@@ -47,24 +58,7 @@ async fn main() -> anyhow::Result<()> {
 
     info!("Starting RustyMQ on port {}", port);
 
-    let broker = BrokerEngine::new(config.buffer_size);
-    let mut subscriber = broker.subscribe("test.*");
-
-    tokio::spawn(async move {
-        while let Ok(msg) = subscriber.recv().await {
-            info!("Received message: {:?}", msg);
-        }
-    });
-
-    // Testing the publish method
-    sleep(Duration::from_secs(1)).await; // Wait a bit before publishing
-
-    broker.publish(Message {
-        topic: "test.topic".to_string(),
-        payload: json!({"response": "Hello, World!"}),
-    });
-
-    sleep(Duration::from_secs(1)).await; // Wait a bit before publishing
+    let _ = run(&port.to_string()).await;
 
     // Wait for a shutdown signal
     tokio::signal::ctrl_c().await?;
