@@ -6,13 +6,7 @@ mod service;
 mod startup;
 mod client;
 
-use std::time::Duration;
-
-use broker::engine::BrokerEngine;
-
 use clap::Parser;
-use serde_json::json;
-use tokio::time::sleep;
 use tracing::info;
 use tracing_subscriber;
 use crate::startup::run;
