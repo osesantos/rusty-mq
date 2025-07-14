@@ -45,6 +45,24 @@ RUSTYMQ_ENABLE_METRICS=true
 RUSTYMQ_ALLOW_WILDCARDS=true
 ```
 
+### 3. Docker
+
+```bash
+# 1. Build the Docker image
+docker build -t rustymq .
+
+# 2. Run a container
+docker run --rm -p 50051:50051 rustymq
+```
+
+
+```bash
+docker-compose up --build
+```
+```bash
+docker-compose down -v
+```
+
 ### 📦 Configuration (ENV Variables)
 
 | Variable                  | Default | Description                        |

@@ -1,0 +1,32 @@
+services:
+  rustymq:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "50051:50051"
+    environment:
+      RUST_LOG: info
+      REDIS_URL: redis://rustymq-redis:6379
+    depends_on:
+      - redis
+    networks:
+      - rustymq-net
+
+  redis:
+    image: redis:7-alpine
+    container_name: rustymq-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redisdata:/data
+    command: ["redis-server", "--appendonly", "yes"]
+    networks:
+      - rustymq-net
+
+networks:
+  rustymq-net:
+    driver: bridge
+
+volumes:
+  redisdata:
