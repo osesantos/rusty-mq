@@ -1,10 +1,10 @@
 [package]
-name = "rusty-mq"
+name = "rustymq"
 version = "0.1.0"
 edition = "2024"
 
 [[bin]]
-name = "rusty-mq"
+name = "rustymq"
 path = "src/main.rs"
 
 [dependencies]
